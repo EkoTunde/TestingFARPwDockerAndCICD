@@ -18,8 +18,8 @@ jobs:
         with:
           up-flags: "-d --build"
       
-      - name: Start containers
-        run: docker-compose up -d --build       
+      # - name: Start containers
+      #   run: docker-compose up -d --build       
 
       - name: Run Backend Tests
         run: |
