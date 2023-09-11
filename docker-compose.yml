@@ -1,0 +1,68 @@
+version: "3.7"
+
+services:
+  db:
+    container_name: postgresql_db
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost -p 5432"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    ports:
+      - 5050:80
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    container_name: backend
+    env_file:
+      - .env
+    build:
+      context: ./backend
+      dockerfile: backend.Dockerfile
+    command: bash -c "alembic -c app/alembic.ini upgrade head && uvicorn app.app.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./backend:/backend
+    ports:
+      - 8000:8000
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "f", "http://localhost:8000/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: frontend.Dockerfile
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    ports:
+      - 5173:5173
+    restart: always
+    depends_on:
+      - backend
