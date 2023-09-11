@@ -47,11 +47,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "f", "http://localhost:8000/health"]
-      interval: 1m30s
+      interval: 1m
       timeout: 10s
       retries: 3
-      start_period: 40s
-      start_interval: 5s
 
   frontend:
     container_name: frontend
