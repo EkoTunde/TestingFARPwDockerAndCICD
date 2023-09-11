@@ -18,11 +18,11 @@ jobs:
 
       - name: Run Backend Tests
         run: |
-          docker-compose exec backend pytest
+          docker-compose -T exec backend pytest
 
       - name: Run Frontend Tests
         run: |
-          docker-compose exec frontend npm test
+          docker-compose -T exec frontend npm test
 
       - name: Stop Docker Services
         run: |
