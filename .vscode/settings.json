@@ -47,5 +47,16 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#1857a4",
-    "js/ts.implicitProjectConfig.checkJs": true
+    "js/ts.implicitProjectConfig.checkJs": true,
+    // for documentation purpuse (mkdocs-material)
+    "yaml.schemas": {
+        "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
+    },
+    "yaml.customTags": [
+        "!ENV scalar",
+        "!ENV sequence",
+        "tag:yaml.org,2002:python/name:materialx.emoji.to_svg",
+        "tag:yaml.org,2002:python/name:materialx.emoji.twemoji",
+        "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+    ]
 }
