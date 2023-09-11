@@ -11,7 +11,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Another way to build containers
+        uses: isbang/compose-action@v1.5.1
+        with:
+          up-flags: "-d --build"
       
       - name: Start containers
         run: docker-compose up -d --build       
