@@ -3,3 +3,7 @@
 .gitignore
 .dockerignore
 .env
+env
+env/
+/env
+**/env
