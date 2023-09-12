@@ -27,6 +27,11 @@ jobs:
           docker-compose up -d --build
           docker save -o myapp.tar myapp:latest
         working-directory: .
+      
+      - name: Save docker images
+        run: |
+          docker save -o myapp.tar myapp:latest
+        working-directory: .
 
       - name: Upload Docker images
         uses: actions/upload-artifact@v3
