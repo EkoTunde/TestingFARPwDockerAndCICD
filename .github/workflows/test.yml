@@ -12,7 +12,7 @@ jobs:
       - name: Download Docker images
         uses: actions/download-artifact@v3
         with:
-          name: docker-images
+          name: .images/docker-images
 
       - name: Load Docker images
         run: |
