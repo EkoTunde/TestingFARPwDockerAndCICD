@@ -30,6 +30,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
   backend:
     container_name: backend
@@ -70,3 +72,4 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:
