@@ -12,6 +12,9 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
+    steps:
+      - name: Run a command
+        run: echo "Hello, World"
     
   build:
     runs-on: ubuntu-latest
