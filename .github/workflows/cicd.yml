@@ -25,8 +25,6 @@ jobs:
       - name: Build docker images
         run: |
           docker-compose up -d --build
-          docker save -o myapp.tar myapp:latest
-        working-directory: .
       
       - name: Save docker images
         run: |
@@ -38,6 +36,9 @@ jobs:
         with:
           name: myapp-docker-image
           path: myapp.tar
+
+      - name: Stop Docker Services
+        run: docker-compose down
   
   test_backend:
     needs: [build]
