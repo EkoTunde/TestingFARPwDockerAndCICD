@@ -6,32 +6,78 @@ on:
       - main  # Adjust the branch as needed
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
 
+  avoid_redundancy:
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
-
+    
+  build:
+    runs-on: ubuntu-latest
     steps:
-
-      # adasd
-      # - name: Cancel previous redundant builds
-      #   uses: styfle/cancel-workflow-action@0.9.1
-      #   with:
-      #     access_token: {{ github.token }}
-
       - name: Checkout Repository
         uses: actions/checkout@v3
       
       - name: Build docker images
-        run: docker-compose build
+        run: |
+          docker-compose up -d --build
+          docker save -o myapp.tar myapp:latest
+        working-directory: path/to/your/app
 
-      - name: Create and start docker containers
-        run: docker-compose up -d
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v3
+        with:
+          name: myapp-docker-image
+          path: myapp.tar
+  
+  test_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-docker-image
 
+      - name: Load Docker image
+        run: |
+          docker load -i myapp.tar
+        working-directory: path/to/your/app
+
+      - name: Run Docker container
+        run: |
+          docker-compose up -d
+        working-directory: path/to/your/app
+      
       - name: Run Backend Tests
         run: docker-compose exec -T backend pytest
+
+      - name: Stop Docker Services
+        run: docker-compose down
+
+  test_frontend:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-docker-image
+
+      - name: Load Docker image
+        run: |
+          docker load -i myapp.tar
+        working-directory: path/to/your/app
+
+      - name: Run Docker container
+        run: |
+          docker-compose up -d
+        working-directory: path/to/your/app
+      - name: Run Frontend Tests
+        run: docker-compose exec -T frontend npm test
+
+      - name: Stop Docker Services
+        run: docker-compose down
 
       - name: Run Frontend Tests
         run: docker-compose exec -T frontend npm test
