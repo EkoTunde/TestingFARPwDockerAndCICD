@@ -5,6 +5,8 @@ services:
     container_name: postgresql_db
     image: postgres
     restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     ports:
       - 5432:5432
     environment:
@@ -65,3 +67,6 @@ services:
     restart: always
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
