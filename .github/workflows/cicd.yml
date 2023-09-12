@@ -26,7 +26,7 @@ jobs:
         run: |
           docker-compose up -d --build
           docker save -o myapp.tar myapp:latest
-        working-directory: path/to/your/app
+        working-directory: .
 
       - name: Upload Docker images
         uses: actions/upload-artifact@v3
@@ -45,12 +45,12 @@ jobs:
       - name: Load Docker image
         run: |
           docker load -i myapp.tar
-        working-directory: path/to/your/app
+        working-directory: .
 
       - name: Run Docker container
         run: |
           docker-compose up -d
-        working-directory: path/to/your/app
+        working-directory: .
       
       - name: Run Backend Tests
         run: docker-compose exec -T backend pytest
@@ -70,12 +70,13 @@ jobs:
       - name: Load Docker image
         run: |
           docker load -i myapp.tar
-        working-directory: path/to/your/app
+        working-directory: .
 
       - name: Run Docker container
         run: |
           docker-compose up -d
-        working-directory: path/to/your/app
+        working-directory: .
+  
       - name: Run Frontend Tests
         run: docker-compose exec -T frontend npm test
 
