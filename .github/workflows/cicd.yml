@@ -26,16 +26,19 @@ jobs:
         run: |
           docker-compose up -d --build
       
-      - name: Save docker images
+      - name: List and save images
         run: |
-          docker save -o myapp.tar myapp:latest
+          images=$(docker-compose images -q)
+          for image in $images; do
+            docker save -o "images/${image}.tar" "$image"
+          done
         working-directory: .
 
       - name: Upload Docker images
         uses: actions/upload-artifact@v3
         with:
-          name: myapp-docker-image
-          path: myapp.tar
+          name: docker-images
+          path: ./images
 
       - name: Stop Docker Services
         run: docker-compose down
@@ -44,14 +47,16 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Download Docker image
+      - name: Download Docker images
         uses: actions/download-artifact@v3
         with:
-          name: myapp-docker-image
+          name: docker-images
 
-      - name: Load Docker image
+      - name: Load Docker images
         run: |
-          docker load -i myapp.tar
+          for file in ./images/*.tar; do
+            docker load -i "$file"
+          done
         working-directory: .
 
       - name: Run Docker container
@@ -70,29 +75,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Download Docker image
+      - name: Download Docker images
         uses: actions/download-artifact@v3
         with:
-          name: myapp-docker-image
+          name: docker-images
 
-      - name: Load Docker image
+      - name: Load Docker images
         run: |
-          docker load -i myapp.tar
+          for file in ./images/*.tar; do
+            docker load -i "$file"
+          done
         working-directory: .
 
       - name: Run Docker container
         run: |
           docker-compose up -d
         working-directory: .
-  
-      - name: Run Frontend Tests
-        run: docker-compose exec -T frontend npm test
-
-      - name: Stop Docker Services
-        run: docker-compose down
 
       - name: Run Frontend Tests
         run: docker-compose exec -T frontend npm test
 
       - name: Stop Docker Services
         run: docker-compose down
+
