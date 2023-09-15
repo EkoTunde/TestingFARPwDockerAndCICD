@@ -15,8 +15,41 @@ jobs:
     steps:
       - name: Run a command
         run: echo "Hello, World"
-    
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Build and start containers
+        run: |
+          docker-compose up -d --build
+        working-directory: .
+
+      - name: Create images directory
+        run: mkdir -p ./images
+      
+      - name: List and save images
+        run: |
+          images=$(docker-compose images -q)
+          for image in $images; do
+            docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
+          done
+        working-directory: .
+
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-images
+          path: ./images
+          retention-days: 1
+
+      - name: Stop Docker Services
+        run: docker-compose down
+      
   new_way:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -30,38 +63,7 @@ jobs:
         run: |
           find "${{ github.workspace }}/images/" -type f -name "*.tar" -exec docker load -i {} \;
 
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v3
-      
-  #     - name: Build and start containers
-  #       run: |
-  #         docker-compose up -d --build
-  #       working-directory: .
 
-  #     - name: Create images directory
-  #       run: mkdir -p ./images
-      
-  #     - name: List and save images
-  #       run: |
-  #         images=$(docker-compose images -q)
-  #         for image in $images; do
-  #           docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
-  #         done
-  #       working-directory: .
-
-  #     - name: Upload Docker images
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: docker-images
-  #         path: ./images
-  #         retention-days: 1
-
-  #     - name: Stop Docker Services
-  #       run: docker-compose down
-  
   # test_backend:
   #   needs: [build]
   #   runs-on: ubuntu-latest
