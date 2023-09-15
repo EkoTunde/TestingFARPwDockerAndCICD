@@ -28,7 +28,7 @@ jobs:
         working-directory: .
 
       - name: Lint backend
-        run: docker-compose exec -T backend flake8 --config backend/app/.flake8
+        run: docker-compose exec -T backend flake8 --config ./app/.flake8
 
       - name: Lint frontend
         run: docker-compose exec -T frontend npm run lint
