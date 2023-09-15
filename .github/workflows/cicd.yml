@@ -34,7 +34,7 @@ jobs:
         run: |
           images=$(docker-compose images -q)
           for image in $images; do
-            docker save -o "${{GITHUB_WORKSPACE}}/images/${image}.tar" "$image"
+            docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
           done
         working-directory: .
 
@@ -62,7 +62,7 @@ jobs:
 
       - name: Load Docker images
         run: |
-          for file in ${{GITHUB_WORKSPACE}}/images/*.tar; do
+          for file in ${{ github.workspace }}/images/*.tar; do
             docker load -i "$file"
           done
         working-directory: .
@@ -92,7 +92,7 @@ jobs:
 
       - name: Load Docker images
         run: |
-          for file in "${{GITHUB_WORKSPACE}}/images/*.tar"; do
+          for file in "${{ github.workspace }}/images/*.tar"; do
             docker load -i "$file"
           done
         working-directory: .
