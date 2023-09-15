@@ -16,7 +16,7 @@ jobs:
       - name: Run a command
         run: echo "Hello, World"
 
-  build:
+  build_lint_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -27,41 +27,70 @@ jobs:
           docker-compose up -d --build
         working-directory: .
 
-      - name: Create images directory
-        run: mkdir -p ./images
-      
-      - name: List and save images
-        run: |
-          images=$(docker-compose images -q)
-          for image in $images; do
-            docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
-          done
-        working-directory: .
+      - name: Lint backend
+        run: docker-compose exec -T backend flake8
 
-      - name: Upload Docker images
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-images
-          path: ./images
-          retention-days: 1
+      - name: Lint frontend
+        run: docker-compose exec -T frontend npm run lint
+
+      - name: Test backend
+        run: docker-compose exec -T backend pytest
+
+      - name: Build frontend
+        run: docker-compose exec -T frontend npm run build
+
+      - name: Test frontend
+        run: docker-compose exec -T frontend npm test
 
       - name: Stop Docker Services
         run: docker-compose down
       
-  new_way:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
       
-      - name: Download Docker images
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-images
-      - name: Load Docker images
-        run: |
-          find "${{ github.workspace }}/images/" -type f -name "*.tar" -exec docker load -i {} \;
+  #     - name: Build and start containers
+  #       run: |
+  #         docker-compose up -d --build
+  #       working-directory: .
+
+  #     - name: Create images directory
+  #       run: mkdir -p ./images
+      
+  #     - name: List and save images
+  #       run: |
+  #         images=$(docker-compose images -q)
+  #         for image in $images; do
+  #           docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
+  #         done
+  #       working-directory: .
+
+  #     - name: Upload Docker images
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: docker-images
+  #         path: ./images
+  #         retention-days: 1
+
+  #     - name: Stop Docker Services
+  #       run: docker-compose down
+      
+  # new_way:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
+      
+  #     - name: Download Docker images
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: docker-images
+  #     - name: Load Docker images
+  #       run: |
+  #         find "${{ github.workspace }}/images/" -type f -name "*.tar" -exec docker load -i {} \;
 
 
   # test_backend:
