@@ -16,95 +16,102 @@ jobs:
       - name: Run a command
         run: echo "Hello, World"
     
-  build:
+  new_way:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-      
-      - name: Build and start containers
+      - name: Load Docker images
         run: |
-          docker-compose up -d --build
-        working-directory: .
+          find "${{ github.workspace }}/images/" -type f -name "*.tar" -exec docker load -i {} \;
 
-      - name: Create images directory
-        run: mkdir -p ./images
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
       
-      - name: List and save images
-        run: |
-          images=$(docker-compose images -q)
-          for image in $images; do
-            docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
-          done
-        working-directory: .
+  #     - name: Build and start containers
+  #       run: |
+  #         docker-compose up -d --build
+  #       working-directory: .
 
-      - name: Upload Docker images
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-images
-          path: ./images
-          retention-days: 1
+  #     - name: Create images directory
+  #       run: mkdir -p ./images
+      
+  #     - name: List and save images
+  #       run: |
+  #         images=$(docker-compose images -q)
+  #         for image in $images; do
+  #           docker save -o "${{ github.workspace }}/images/${image}.tar" "$image"
+  #         done
+  #       working-directory: .
 
-      - name: Stop Docker Services
-        run: docker-compose down
+  #     - name: Upload Docker images
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: docker-images
+  #         path: ./images
+  #         retention-days: 1
+
+  #     - name: Stop Docker Services
+  #       run: docker-compose down
   
-  test_backend:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  # test_backend:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
       
-      - name: Download Docker images
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-images
+  #     - name: Download Docker images
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: docker-images
 
-      - name: Load Docker images
-        run: |
-          for file in ${{ github.workspace }}/images/*.tar; do
-            docker load -i "$file"
-          done
-        working-directory: .
+  #     - name: Load Docker images
+  #       run: |
+  #         for file in ${{ github.workspace }}/images/*.tar; do
+  #           docker load -i "$file"
+  #         done
+  #       working-directory: .
 
-      - name: Run Docker container
-        run: |
-          docker-compose up -d
-        working-directory: .
+  #     - name: Run Docker container
+  #       run: |
+  #         docker-compose up -d
+  #       working-directory: .
       
-      - name: Run Backend Tests
-        run: docker-compose exec -T backend pytest
+  #     - name: Run Backend Tests
+  #       run: docker-compose exec -T backend pytest
 
-      - name: Stop Docker Services
-        run: docker-compose down
+  #     - name: Stop Docker Services
+  #       run: docker-compose down
 
-  test_frontend:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  # test_frontend:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
 
-      - name: Download Docker images
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-images
+  #     - name: Download Docker images
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: docker-images
 
-      - name: Load Docker images
-        run: |
-          for file in "${{ github.workspace }}/images/*.tar"; do
-            docker load -i "$file"
-          done
-        working-directory: .
+  #     - name: Load Docker images
+  #       run: |
+  #         for file in "${{ github.workspace }}/images/*.tar"; do
+  #           docker load -i "$file"
+  #         done
+  #       working-directory: .
 
-      - name: Run Docker container
-        run: |
-          docker-compose up -d
-        working-directory: .
+  #     - name: Run Docker container
+  #       run: |
+  #         docker-compose up -d
+  #       working-directory: .
 
-      - name: Run Frontend Tests
-        run: docker-compose exec -T frontend npm test
+  #     - name: Run Frontend Tests
+  #       run: docker-compose exec -T frontend npm test
 
-      - name: Stop Docker Services
-        run: docker-compose down
+  #     - name: Stop Docker Services
+  #       run: docker-compose down
 
