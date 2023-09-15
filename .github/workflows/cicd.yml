@@ -45,7 +45,9 @@ jobs:
       - name: Stop Docker Services
         run: docker-compose down
       
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   steps:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo "Hello, World, from the deployment step! :)"
   
